@@ -10,22 +10,24 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 
 public class Events implements Listener {
-    private Globalgamerules plugin;
-    private PluginUtil pluginUtil;
-    private LanguageUtil languageUtil;
+    private final Globalgamerules plugin;
+    private final PluginUtil pluginUtil;
+    private final LanguageUtil languageUtil;
+
     public Events(Globalgamerules plugin, PluginUtil pluginUtil, LanguageUtil languageUtil) {
         this.plugin = plugin;
         this.pluginUtil = pluginUtil;
         this.languageUtil = languageUtil;
     }
+
     @EventHandler
     public void onWorldLoad(WorldLoadEvent evt) {
-        if(!pluginUtil.isExemptWorld(evt.getWorld().getName())) {
-            if(pluginUtil.isLegacy()) {
+        if (!pluginUtil.isExemptWorld(evt.getWorld().getName())) {
+            if (pluginUtil.isLegacy()) {
                 GamerulesHandler_Legacy gamerulesHandler_legacy = new GamerulesHandler_Legacy(plugin, pluginUtil, languageUtil);
                 gamerulesHandler_legacy.syncGamerules(evt.getWorld());
             } else {
-                GamerulesHandler gamerulesHandler = new GamerulesHandler(plugin,pluginUtil, languageUtil);
+                GamerulesHandler gamerulesHandler = new GamerulesHandler(plugin, pluginUtil, languageUtil);
                 gamerulesHandler.syncGamerules(evt.getWorld());
             }
             String msg = languageUtil.getMsg("gamerule-synced").replace("%s", evt.getWorld().getName());

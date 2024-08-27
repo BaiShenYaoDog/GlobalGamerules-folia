@@ -12,31 +12,36 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class PluginUtil {
-    private Globalgamerules plugin;
+    private final Globalgamerules plugin;
+    private List<String> keys = null;
+    private FileConfiguration config = null;
     public PluginUtil(Globalgamerules plugin) {
         this.plugin = plugin;
     }
-    private List<String> keys = null;
-    private FileConfiguration config = null;
+
     public String getVersion() {
         return plugin.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
     }
+
     public FileConfiguration getConfig() {
-        if(config==null) {
+        if (config == null) {
             plugin.reloadConfig();
             config = plugin.getConfig();
         }
         return config;
     }
+
     public void resetConfigCache() {
         config = plugin.getConfig();
         keys = new ArrayList<>(getConfig().getConfigurationSection("gamerules").getKeys(true));
     }
+
     public boolean isLegacy() {
-        String ver = getVersion().replace(".","").replace("_","").replace("v","").
-                replace("_","").replace("R","");
+        String ver = getVersion().replace(".", "").replace("_", "").replace("v", "").
+                replace("_", "").replace("R", "");
         return Integer.parseInt(ver) < 1131;
     }
+
     public List<String> getGamerules() {
         try {
             if (keys == null) {
@@ -57,11 +62,12 @@ public class PluginUtil {
 
          */
     }
+
     public boolean removeGamerule(String gamerule) {
-        if(keys==null) {
+        if (keys == null) {
             keys = new ArrayList<>(getConfig().getConfigurationSection("gamerules").getKeys(true));
         }
-        if(keys.contains(gamerule)) {
+        if (keys.contains(gamerule)) {
             keys.remove(gamerule);
             plugin.saveConfig();
             return true;
@@ -70,34 +76,34 @@ public class PluginUtil {
     }
 
     public String getGameruleValue(String gamerule) {
-        return getConfig().getString("gamerules."+gamerule, null);
+        return getConfig().getString("gamerules." + gamerule, null);
     }
+
     public List<String> getExemptWorlds() {
         return getConfig().getStringList("exempt-worlds");
     }
+
     public String getLocale() {
         return getConfig().getString("locale", "en_US");
     }
+
     public void addGamerule(String gamerule, String value) {
-        getConfig().set("gamerules."+gamerule, value);
+        getConfig().set("gamerules." + gamerule, value);
         plugin.saveConfig();
         config = plugin.getConfig();
         keys = new ArrayList<>(getConfig().getConfigurationSection("gamerules").getKeys(true));
     }
+
     public boolean isBooleanGamerule(String gamerule) {
-        if(isLegacy()) {
+        if (isLegacy()) {
             Pattern p = Pattern.compile("[0-9]*");
-            for(World w : Bukkit.getWorlds()) {
+            for (World w : Bukkit.getWorlds()) {
                 return !p.matcher(w.getGameRuleValue(gamerule)).matches();
             }
         } else {
-            for(World w : Bukkit.getWorlds()) {
+            for (World w : Bukkit.getWorlds()) {
                 String value = w.getGameRuleValue(GameRule.getByName(gamerule)).toString();
-                if(value.equals("true")||value.equals("false")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return value.equals("true") || value.equals("false");
             }
         }
         return true;
@@ -114,8 +120,9 @@ public class PluginUtil {
         return false;
         */
     }
+
     public boolean addExemptWorld(String world) {
-        if(isExemptWorld(world)) {
+        if (isExemptWorld(world)) {
             return false;
         }
         List<String> worlds = getExemptWorlds();
@@ -124,8 +131,9 @@ public class PluginUtil {
         plugin.saveConfig();
         return true;
     }
+
     public boolean removeExemptWorld(String world) {
-        if(isExemptWorld(world)) {
+        if (isExemptWorld(world)) {
             List<String> worlds = getExemptWorlds();
             worlds.remove(world);
             getConfig().set("exempt-worlds", worlds);
@@ -134,10 +142,11 @@ public class PluginUtil {
         }
         return false;
     }
+
     public String listExemptWorld(String world) {
         StringBuilder sb = new StringBuilder();
-        for(String s : getExemptWorlds()) {
-            if(s.equals(world)) {
+        for (String s : getExemptWorlds()) {
+            if (s.equals(world)) {
                 sb.append(" " + ChatColor.YELLOW + ChatColor.BOLD).append(s).append(", ");
                 continue;
             }
